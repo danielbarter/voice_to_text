@@ -54,7 +54,7 @@ Or add the flake and module to a NixOS configuration:
   outputs = { nixpkgs, voxtype, ... }: {
     nixosConfigurations.my-host = nixpkgs.lib.nixosSystem {
       modules = [
-        voxtype.nixosModules.default
+        voxtype.nixosModule
         {
           services.voxtype.enable = true;
           # Optional; empty by default and never used as a forced replacement.

@@ -58,6 +58,6 @@
         voxtype-model-base-en = self.packages.${final.stdenv.hostPlatform.system}.model-base-en;
       };
 
-      nixosModules.default = import ./nix/nixos-module.nix { inherit self; };
+      nixosModule = import ./nix/nixos-module.nix { inherit self; };
     };
 }
