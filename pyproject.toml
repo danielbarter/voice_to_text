@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cosmic-voxtype"
+version = "0.2.0"
+description = "Private, local voice typing for the COSMIC desktop"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "dbus-next>=0.2.3,<1",
+]
+
+[project.optional-dependencies]
+faster = ["faster-whisper>=1.2,<2"]
+
+[project.scripts]
+voxtype = "voxtype.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/voxtype"]
