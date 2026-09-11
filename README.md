@@ -26,9 +26,18 @@ Whisper, and types the result into the window that already had focus.
 Fedora RPM and Nix/NixOS packaging is documented in
 [`packaging/README.md`](packaging/README.md).
 
-The installer creates a backup before touching COSMIC's custom shortcuts. The
-first run downloads the `base.en` model (roughly 150 MB). On this machine the
-Logitech C920 selected in COSMIC Settings is used automatically.
+The installer does not modify COSMIC's keyboard shortcuts. The first run
+downloads the `base.en` model (roughly 150 MB). On this machine the Logitech
+C920 selected in COSMIC Settings is used automatically.
+
+Add the shortcut manually under **COSMIC Settings → Input Devices → Keyboard →
+View and customize shortcuts → Custom**:
+
+```text
+Name:     VoxType
+Command:  voxtype-ctl
+Shortcut: Insert (or any key you prefer)
+```
 
 ## Use
 
@@ -40,8 +49,8 @@ Insert      stop, transcribe, and insert
 The panel microphone turns red immediately while recording, then amber while
 Whisper is working. You can also click that panel icon to start or stop.
 
-The key is a normal COSMIC custom shortcut. Change it under **COSMIC Settings →
-Input Devices → Keyboard → View and customize shortcuts → Custom → VoxType**.
+The key is a normal COSMIC custom shortcut, so it can be changed or removed
+entirely from the same settings page.
 
 Useful commands:
 

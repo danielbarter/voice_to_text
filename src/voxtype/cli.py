@@ -13,7 +13,6 @@ from . import __version__
 from .config import Config, ensure_config
 from .daemon import VoxTypeDaemon, send_command
 from .history import recent
-from .shortcut import install_shortcut
 from .transcriber import load_transcriber
 
 
@@ -50,13 +49,6 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("shortcuts", help="open COSMIC keyboard settings")
     history = commands.add_parser("history", help="show recent dictations")
     history.add_argument("-n", "--limit", type=int, default=20)
-    shortcut = commands.add_parser(
-        "install-shortcut", help="add the native COSMIC shortcut"
-    )
-    shortcut.add_argument("--key", default="Insert")
-    shortcut.add_argument(
-        "--executable", default=shutil.which("voxtype-ctl") or str(sys.argv[0])
-    )
     return result
 
 
@@ -111,11 +103,6 @@ def main() -> None:
     elif command == "history":
         for record in recent(max(1, args.limit)):
             print(f"{record.get('time', '')}  {record.get('text', '')}")
-    elif command == "install-shortcut":
-        path, backup = install_shortcut(args.executable, args.key)
-        print(f"Installed {args.key} shortcut in {path}")
-        if backup:
-            print(f"Backup: {backup}")
 
 
 if __name__ == "__main__":

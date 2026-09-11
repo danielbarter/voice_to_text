@@ -30,15 +30,16 @@ mkdir -p "$HOME/.local/share/applications"
 install -m 0644 "$project_dir/data/dev.voxtype.VoxType.desktop" "$HOME/.local/share/applications/dev.voxtype.VoxType.desktop"
 systemctl --user daemon-reload
 
-"$HOME/.local/bin/voxtype" install-shortcut --key Insert --executable "$HOME/.local/bin/voxtype-ctl"
-
 echo "Downloading the local Whisper model (first install only)…"
 "$HOME/.local/bin/voxtype" prepare
 systemctl --user enable voxtype.service
 systemctl --user restart voxtype.service
 
 echo
-echo "VoxType is installed. Press Insert, speak, then press Insert again."
+echo "VoxType is installed. Add a custom shortcut in COSMIC Settings:"
+echo "  Name:    VoxType"
+echo "  Command: $HOME/.local/bin/voxtype-ctl"
+echo "  Key:     Insert (or any key you prefer)"
 echo "Settings: voxtype settings"
-echo "Shortcut: voxtype shortcuts"
+echo "Open shortcut settings: voxtype shortcuts"
 echo "Logs:     journalctl --user -u voxtype -f"

@@ -8,16 +8,17 @@ Build the binary and source RPMs in the existing Fedora 43 toolbox:
 ./packaging/fedora/build-rpm.sh
 ```
 
-Install both generated binary packages, then enable the user service and add
-the per-user COSMIC shortcut:
+Install both generated binary packages, then enable the user service:
 
 ```bash
 sudo dnf install \
   packaging/fedora/rpmbuild/RPMS/x86_64/voxtype-[0-9]*.rpm \
   packaging/fedora/rpmbuild/RPMS/noarch/voxtype-model-base-en-*.rpm
 systemctl --user enable --now voxtype.service
-voxtype install-shortcut --key Insert
 ```
+
+Each user adds a custom shortcut manually in COSMIC Settings with the command
+`voxtype-ctl` and their preferred key (for example, `Insert`).
 
 On Fedora COSMIC Atomic, layer the same two RPMs and reboot into the new
 deployment first:
@@ -29,8 +30,8 @@ sudo rpm-ostree install \
 systemctl reboot
 ```
 
-Then run the two per-user `systemctl` and `voxtype install-shortcut` commands
-above after logging back in.
+Then enable the per-user service and add the COSMIC shortcut manually after
+logging back in.
 
 The RPM uses Fedora's `python3-pywhispercpp`, `python3-dbus-next`, `wtype`, and
 PipeWire packages. The model subpackage contains a checksum-verified, pinned
@@ -65,11 +66,8 @@ Or add the flake and module to a NixOS configuration:
 }
 ```
 
-After the rebuild, each COSMIC user registers their own shortcut once:
-
-```bash
-voxtype install-shortcut --key Insert
-```
+After the rebuild, each COSMIC user adds a custom shortcut manually. Set its
+command to `voxtype-ctl` and choose any preferred key.
 
 The NixOS module enables the user service and points it at a pinned model in
 the Nix store; normal use performs no network access.
