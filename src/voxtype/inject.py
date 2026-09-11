@@ -21,7 +21,9 @@ def inject(text: str, delay_ms: int = 0) -> None:
                 binary = str(candidate)
                 break
     if binary is None:
-        raise InjectionError("wrtype is not installed; run ./install.sh again")
+        raise InjectionError(
+            "neither wrtype nor wtype is installed; install one and ensure it is on PATH"
+        )
     if Path(binary).name == "wtype":
         args = [binary]
         if delay_ms:

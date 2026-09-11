@@ -19,16 +19,11 @@ Whisper, and types the result into the window that already had focus.
 
 ## Install
 
-```bash
-./install.sh
-```
-
-Fedora RPM and Nix/NixOS packaging is documented in
+Install VoxType using the Fedora RPM or Nix/NixOS packages documented in
 [`packaging/README.md`](packaging/README.md).
 
-The installer does not modify COSMIC's keyboard shortcuts. The first run
-downloads the `base.en` model (roughly 150 MB). On this machine the Logitech
-C920 selected in COSMIC Settings is used automatically.
+The packages do not modify COSMIC's keyboard shortcuts. The microphone selected
+in COSMIC Settings is used automatically.
 
 Add the shortcut manually under **COSMIC Settings → Input Devices → Keyboard →
 View and customize shortcuts → Custom**:
@@ -76,5 +71,6 @@ immediately after each transcription attempt.
 ## Development
 
 ```bash
-uv run --python 3.12 --with faster-whisper python -m unittest discover -s tests
+nix develop
+pytest
 ```

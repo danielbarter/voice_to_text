@@ -25,6 +25,34 @@
           default = voxtype;
         });
 
+      devShells = forAllSystems (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          python = pkgs.python3.withPackages (pythonPackages: with pythonPackages; [
+            dbus-next
+            faster-whisper
+            hatchling
+            pytest
+          ]);
+        in
+        {
+          default = pkgs.mkShell {
+            packages = [
+              python
+              pkgs.cargo
+              pkgs.rustc
+              pkgs.pipewire
+              pkgs.wtype
+              pkgs.libcanberra-gtk3
+              pkgs.libnotify
+            ];
+
+            shellHook = ''
+              export PYTHONPATH="$PWD/src''${PYTHONPATH:+:$PYTHONPATH}"
+            '';
+          };
+        });
+
       overlays.default = final: _prev: {
         voxtype = self.packages.${final.stdenv.hostPlatform.system}.voxtype;
         voxtype-model-base-en = self.packages.${final.stdenv.hostPlatform.system}.model-base-en;
@@ -33,4 +61,3 @@
       nixosModules.default = import ./nix/nixos-module.nix { inherit self; };
     };
 }
-
