@@ -84,4 +84,6 @@ command to `voxtype-ctl` and choose any preferred key.
 
 The NixOS module enables the user service and points it at the same pinned
 whisper.cpp model used by Fedora, stored in the Nix store; normal use performs
-no network access.
+no network access. The Nix package builds whisper.cpp with Vulkan acceleration,
+and the module enables NixOS graphics support so the service can use the system
+GPU driver.

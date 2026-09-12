@@ -38,6 +38,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    hardware.graphics.enable = true;
+
     environment.systemPackages = [ cfg.package ];
 
     systemd.user.services.voxtype = {
