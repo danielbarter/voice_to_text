@@ -4,7 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .config import data_dir
+from .paths import data_dir
 
 
 def history_path() -> Path:

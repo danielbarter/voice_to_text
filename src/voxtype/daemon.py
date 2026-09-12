@@ -13,13 +13,14 @@ import wave
 from array import array
 from pathlib import Path
 
-from .config import Config, cache_dir, runtime_dir
+from .config import Config
 from .feedback import Feedback
 from .history import append
 from .indicator import StatusIndicator
 from .inject import InjectionError, inject
+from .paths import cache_dir, runtime_dir
 from .text import polish
-from .transcriber import load_transcriber
+from .transcriber import Transcriber
 
 LOG = logging.getLogger("voxtype")
 
@@ -45,7 +46,7 @@ class VoxTypeDaemon:
     def load_model(self) -> None:
         try:
             LOG.info("Loading Whisper model %s", self.config.model)
-            model = load_transcriber(self.config, allow_download=False)
+            model = Transcriber(self.config)
             with self.state_lock:
                 self.model = model
             self._set_state("idle")
@@ -53,9 +54,7 @@ class VoxTypeDaemon:
         except Exception:
             LOG.exception("Could not load model")
             self._set_state("error")
-            self.feedback.error(
-                f"Could not load {self.config.model}; run: voxtype prepare"
-            )
+            self.feedback.error(f"Could not load model {self.config.model}")
 
     def status(self) -> dict:
         with self.state_lock:
@@ -202,6 +201,8 @@ class VoxTypeDaemon:
                     continue
                 with connection:
                     try:
+                        import json
+
                         request = json.loads(connection.recv(4096).decode() or "{}")
                         command = request.get("command", "status")
                         response = (
@@ -220,12 +221,3 @@ class VoxTypeDaemon:
                 socket_path.unlink()
             except FileNotFoundError:
                 pass
-
-
-def send_command(command: str, timeout: float = 2.0) -> dict:
-    path = runtime_dir() / "control.sock"
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-        client.settimeout(timeout)
-        client.connect(str(path))
-        client.sendall((json.dumps({"command": command}) + "\n").encode())
-        return json.loads(client.recv(4096).decode())

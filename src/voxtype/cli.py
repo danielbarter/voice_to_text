@@ -7,29 +7,15 @@ import os
 import shutil
 import subprocess
 import sys
-import time
 
 from . import __version__
-from .config import Config, ensure_config
-from .daemon import VoxTypeDaemon, send_command
-from .history import recent
-from .transcriber import load_transcriber
+from .control import send_command
 
 
 def _send(command: str) -> dict:
     try:
         return send_command(command)
     except (TimeoutError, FileNotFoundError, ConnectionRefusedError):
-        if shutil.which("systemctl"):
-            subprocess.run(
-                ["systemctl", "--user", "start", "voxtype.service"], check=False
-            )
-            for _ in range(20):
-                time.sleep(0.1)
-                try:
-                    return send_command(command)
-                except (TimeoutError, FileNotFoundError, ConnectionRefusedError):
-                    pass
         raise RuntimeError(
             "VoxType service is not running; try: systemctl --user restart voxtype"
         )
@@ -44,7 +30,6 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("toggle", help="start or finish a dictation")
     commands.add_parser("status", help="show daemon state")
     commands.add_parser("daemon", help=argparse.SUPPRESS)
-    commands.add_parser("prepare", help="download the configured model for offline use")
     commands.add_parser("settings", help="open VoxType configuration")
     commands.add_parser("shortcuts", help="open COSMIC keyboard settings")
     history = commands.add_parser("history", help="show recent dictations")
@@ -56,15 +41,13 @@ def main() -> None:
     args = parser().parse_args()
     command = args.command or "toggle"
     if command == "daemon":
+        from .config import Config
+        from .daemon import VoxTypeDaemon
+
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
         )
         VoxTypeDaemon(Config.load()).serve()
-    elif command == "prepare":
-        config = Config.load()
-        print(f"Preparing {config.model} for offline dictation…", flush=True)
-        load_transcriber(config, allow_download=True)
-        print(f"Ready: {config.model}")
     elif command in {"toggle", "status"}:
         try:
             response = _send(command)
@@ -74,6 +57,8 @@ def main() -> None:
         if command == "status" or sys.stdout.isatty():
             print(json.dumps(response, indent=2))
     elif command == "settings":
+        from .config import ensure_config
+
         path = ensure_config()
         editor = os.environ.get("VISUAL") or os.environ.get("EDITOR")
         if editor:
@@ -101,6 +86,8 @@ def main() -> None:
                 file=sys.stderr,
             )
     elif command == "history":
+        from .history import recent
+
         for record in recent(max(1, args.limit)):
             print(f"{record.get('time', '')}  {record.get('text', '')}")
 

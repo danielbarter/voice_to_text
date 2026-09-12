@@ -8,12 +8,12 @@ Build the binary and source RPMs in the existing Fedora 43 toolbox:
 ./packaging/fedora/build-rpm.sh
 ```
 
-Install both generated binary packages, then enable the user service:
+Install both generated packages, then enable the user service:
 
 ```bash
 sudo dnf install \
-  packaging/fedora/rpmbuild/RPMS/x86_64/voxtype-[0-9]*.rpm \
-  packaging/fedora/rpmbuild/RPMS/noarch/voxtype-model-base-en-*.rpm
+  packaging/fedora/rpmbuild/RPMS/current/voxtype.rpm \
+  packaging/fedora/rpmbuild/RPMS/current/voxtype-model-base-en.rpm
 systemctl --user enable --now voxtype.service
 ```
 
@@ -25,8 +25,20 @@ deployment first:
 
 ```bash
 sudo rpm-ostree install \
-  packaging/fedora/rpmbuild/RPMS/x86_64/voxtype-[0-9]*.rpm \
-  packaging/fedora/rpmbuild/RPMS/noarch/voxtype-model-base-en-*.rpm
+  packaging/fedora/rpmbuild/RPMS/current/voxtype.rpm \
+  packaging/fedora/rpmbuild/RPMS/current/voxtype-model-base-en.rpm
+systemctl reboot
+```
+
+When replacing an earlier locally layered VoxType build, remove the old local
+requests in the same transaction:
+
+```bash
+sudo rpm-ostree install \
+  --uninstall=voxtype \
+  --uninstall=voxtype-model-base-en \
+  packaging/fedora/rpmbuild/RPMS/current/voxtype.rpm \
+  packaging/fedora/rpmbuild/RPMS/current/voxtype-model-base-en.rpm
 systemctl reboot
 ```
 
@@ -34,8 +46,9 @@ Then enable the per-user service and add the COSMIC shortcut manually after
 logging back in.
 
 The RPM uses Fedora's `python3-pywhispercpp`, `python3-dbus-next`, `wtype`, and
-PipeWire packages. The model subpackage contains a checksum-verified, pinned
-`base.en` model and enables fully offline startup.
+PipeWire packages. The model subpackage contains the checksum-verified, pinned
+whisper.cpp `base.en` model shared with the Nix package and enables fully
+offline startup.
 
 ## NixOS
 
@@ -54,7 +67,7 @@ Or add the flake and module to a NixOS configuration:
   outputs = { nixpkgs, voxtype, ... }: {
     nixosConfigurations.my-host = nixpkgs.lib.nixosSystem {
       modules = [
-        voxtype.nixosModule
+        voxtype.nixosModules.default
         {
           services.voxtype.enable = true;
           # Optional; empty by default and never used as a forced replacement.
@@ -69,5 +82,6 @@ Or add the flake and module to a NixOS configuration:
 After the rebuild, each COSMIC user adds a custom shortcut manually. Set its
 command to `voxtype-ctl` and choose any preferred key.
 
-The NixOS module enables the user service and points it at a pinned model in
-the Nix store; normal use performs no network access.
+The NixOS module enables the user service and points it at the same pinned
+whisper.cpp model used by Fedora, stored in the Nix store; normal use performs
+no network access.

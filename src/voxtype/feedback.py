@@ -2,12 +2,6 @@ from __future__ import annotations
 
 import shutil
 import subprocess
-from pathlib import Path
-
-SOUND_DIRS = (
-    Path("/usr/share/sounds/freedesktop/stereo"),
-    Path("/usr/share/sounds/ocean/stereo"),
-)
 
 
 class Feedback:

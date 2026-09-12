@@ -4,5 +4,4 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-native/voxtype-ctl/target/
 packaging/fedora/rpmbuild/

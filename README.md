@@ -12,7 +12,7 @@ Whisper, and types the result into the window that already had focus.
 - Text is injected through COSMIC's Wayland virtual-keyboard protocol.
 - The model stays warm in a user service, avoiding startup cost on every phrase.
 - A live COSMIC status-area icon turns red while listening and amber while transcribing.
-- The native hotkey client reaches the warm daemon in a few milliseconds.
+- The lightweight hotkey client reaches the warm daemon without loading the UI stack.
 - Audio is local and temporary. No API key, account, or cloud request is used.
 - Say “new line”, “new paragraph”, “open quote”, or “close quote” for formatting.
 - Recent successful dictations are recoverable with `voxtype history`.
@@ -54,7 +54,6 @@ voxtype status
 voxtype settings
 voxtype shortcuts
 voxtype history
-voxtype prepare  # download a newly configured model
 journalctl --user -u voxtype -f
 ```
 
@@ -64,9 +63,10 @@ After changing `voxtype settings`, reload with:
 systemctl --user restart voxtype
 ```
 
-Models are cached under `~/.cache/voxtype/models`; history is stored at
-`~/.local/share/voxtype/history.jsonl`. Temporary microphone audio is deleted
-immediately after each transcription attempt.
+The Fedora and Nix packages both install the same checksum-verified, pinned
+whisper.cpp model. History is stored at `~/.local/share/voxtype/history.jsonl`.
+Temporary microphone audio is deleted immediately after each transcription
+attempt.
 
 ## Development
 

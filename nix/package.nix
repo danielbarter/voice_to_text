@@ -2,18 +2,19 @@
   lib,
   makeWrapper,
   python3Packages,
-  rustc,
-  cargo,
   pipewire,
   wtype,
   libcanberra-gtk3,
   libnotify,
+  modelPackage,
+  pywhispercpp,
   src,
+  version,
 }:
 
-python3Packages.buildPythonApplication rec {
+python3Packages.buildPythonApplication {
   pname = "voxtype";
-  version = "0.2.0";
+  inherit version;
   pyproject = true;
   inherit src;
 
@@ -21,29 +22,19 @@ python3Packages.buildPythonApplication rec {
 
   dependencies = with python3Packages; [
     dbus-next
-    faster-whisper
+    pywhispercpp
   ];
 
-  nativeBuildInputs = [
-    cargo
-    makeWrapper
-    rustc
-  ];
-
-  postBuild = ''
-    cargo build --release --locked --offline \
-      --manifest-path native/voxtype-ctl/Cargo.toml
-  '';
+  nativeBuildInputs = [ makeWrapper ];
 
   postInstall = ''
-    install -Dpm0755 native/voxtype-ctl/target/release/voxtype-ctl \
-      "$out/bin/voxtype-ctl"
     install -Dpm0644 data/dev.voxtype.VoxType.desktop \
       "$out/share/applications/dev.voxtype.VoxType.desktop"
   '';
 
   postFixup = ''
     wrapProgram "$out/bin/voxtype" \
+      --set-default VOXTYPE_MODEL "${modelPackage}/ggml-base.en.bin" \
       --prefix PATH : ${lib.makeBinPath [ pipewire wtype libcanberra-gtk3 libnotify ]}
   '';
 

@@ -7,6 +7,9 @@
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      version = builtins.head (builtins.match
+        ''.*__version__ = "([^"]+)".*''
+        (builtins.readFile ./src/voxtype/__init__.py));
     in
     {
       packages = forAllSystems (system:
@@ -20,8 +23,13 @@
           };
         in
         rec {
-          voxtype = pkgs.callPackage ./nix/package.nix { src = source; };
+          pywhispercpp = pkgs.callPackage ./nix/pywhispercpp.nix { };
           model-base-en = pkgs.callPackage ./nix/model-base-en.nix { };
+          voxtype = pkgs.callPackage ./nix/package.nix {
+            inherit pywhispercpp version;
+            modelPackage = model-base-en;
+            src = source;
+          };
           default = voxtype;
         });
 
@@ -30,17 +38,14 @@
           pkgs = nixpkgs.legacyPackages.${system};
           python = pkgs.python3.withPackages (pythonPackages: with pythonPackages; [
             dbus-next
-            faster-whisper
             hatchling
             pytest
-          ]);
+          ] ++ [ self.packages.${system}.pywhispercpp ]);
         in
         {
           default = pkgs.mkShell {
             packages = [
               python
-              pkgs.cargo
-              pkgs.rustc
               pkgs.pipewire
               pkgs.wtype
               pkgs.libcanberra-gtk3
@@ -58,6 +63,6 @@
         voxtype-model-base-en = self.packages.${final.stdenv.hostPlatform.system}.model-base-en;
       };
 
-      nixosModule = import ./nix/nixos-module.nix { inherit self; };
+      nixosModules.default = import ./nix/nixos-module.nix { inherit self; };
     };
 }

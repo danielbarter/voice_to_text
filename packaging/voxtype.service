@@ -6,11 +6,9 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/voxtype daemon
-Environment=VOXTYPE_ENGINE=pywhispercpp
 Environment=VOXTYPE_MODEL=/usr/share/voxtype/models/ggml-base.en.bin
 Restart=on-failure
 RestartSec=2
 
 [Install]
 WantedBy=graphical-session.target
-
